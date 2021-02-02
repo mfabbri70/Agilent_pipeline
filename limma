@@ -1,0 +1,22 @@
+
+#data <- ReadAffy()
+#eset <- rma(data)
+# An appropriate design matrix can be created and a linear model tted using
+design <- model.matrix(~ 0+factor(c(1,1,1,2,2,3,3,3)))
+colnames(design) <- c("group1", "group2", "group3")
+fit <- lmFit(eset, design)
+
+
+#To make all pair-wise comparisons between the three groups the appropriate contrast matrix can be created by
+contrast.matrix <- makeContrasts(group2-group1, group3-group2, group3-group1, levels=design)
+fit2 <- contrasts.fit(fit, contrast.matrix)
+fit2 <- eBayes(fit2)
+
+#A list of top genes dierential expressed in group2 versus group1 can be obtained from
+topTable(fit2, coef=1, adjust="BH")
+
+#The outcome of each hypothesis test can be assigned using:
+results <- decideTests(fit2)
+
+#A Venn diagram showing numbers of genes signicant in each comparison can be obtained:
+vennDiagram(results)
